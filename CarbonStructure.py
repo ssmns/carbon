@@ -1,5 +1,7 @@
 import numpy as np 
 import matplotlib.pyplot as plt
+import mpl_toolkits
+from mpl_toolkits.mplot3d import Axes3D
 
 class Carbon:
     def __init__(self,n,m=0,bond=1.41,unit='An'):
@@ -88,21 +90,47 @@ class Carbon:
 
 
 
+    
+    def cnt(self,points):
+        # d = 78.3*np.sqrt((self.n+self.m)**2-self.m*self.n)
+        R = (self.width +0.25 * self.bond) / 2 / np.pi 
+        points3d =[]
+        for i in points:
+            points3d.append(np.array([i[0],i[1],-R]))
 
-    def cnt(self):
-        pass
+        # fig = plt.figure()
+        # ax = fig.add_subplot(111, projection='3d')
+
+        for i in range(len(points3d)):
+            theta = points3d[i][0]/R
+            points3d[i][0] = R*np.sin(theta)
+            points3d[i][2] = -R*np.cos(theta)
+            # ax.scatter(points3d[i][0], points3d[i][1], points3d[i][2],marker='x',color='red')
+        
+        # plt.show()
+        return points3d
+
+        
 
     def unit(self):
         pass 
 
-    def draw(self,Points):
+    def draw(self,Points,option='ro'):
         for i in range(len(Points)):
-            plt.plot(Points[i][0],Points[i][1],'ro')
+            plt.plot(Points[i][0],Points[i][1],option)
         plt.axis('equal')
         plt.show()
 
-    def save_xyz(self,name=''):
-        pass
+    def save_xyz(self,points,name=''):
+        f = open(name+'.xyz','+w')
+        f.write('%i\n\n' %(len(points)))
+        for i in points:
+            if len(i) ==2:
+                f.write('1\t %f %f %f \n'%(i[0],i[1],0))
+            else:
+                f.write('1\t %f %f %f \n'%(i[0],i[1],i[2]))
+
+        f.close()
     
     def rotate(self,point=np.array([5,4]),theta=np.pi/2):
         R = [[np.cos(theta),-np.sin(theta)],[np.sin(theta),np.cos(theta)]]
@@ -112,4 +140,6 @@ class Carbon:
 
 cnt = Carbon(n=6,m=5)
 points = cnt.sheet(30,30)
-cnt.draw(points)
+points3d = cnt.cnt(points)
+cnt.save_xyz(points3d,'data')
+# cnt.draw(points)
